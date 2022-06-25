@@ -1,0 +1,40 @@
+This document displays commands used to:
+    1. Create a bucket
+    2. Copy a folder from local PC (including all files resursively found inside)
+    into the newly created bucket.
+    3. Get properties of the buckets lifecycle configuration
+    4. Send a new JSON formated text to represent the new policy to create
+    5. Verify new policy as applied on the bucket
+
+aws s3 mb s3://test-401493019403-2
+aws s3 cp --recursive sales-docs/ s3://test-401493019403-2
+aws s3api get-bucket-lifecycle-configuration \
+    --bucket s3://test-401493019403-2
+aws s3api put-bucket-lifecycle-configuration \
+    --bucket s3://test-401493019403-2
+    --lifecycle-configuration '{
+        "Rules": [
+            {
+                "Filter": {
+                    "Prefix": "sales-docs/"
+                },
+                "Status": "Enabled",
+                "Transitions": [
+                    {
+                        "Days": 30,
+                        "StorageClass": "STANDARD_IA"
+                    },
+                    {
+                        "Days": 60,
+                        "StorageClass": "GLACIER"
+                    }
+                ],
+                "Expiration": {
+                    "Days": 365
+                },
+                "ID": "Lifecycle for bucket objects."
+            }
+        ]
+    }'
+aws s3api get-bucket-lifecycle-configuration \
+    --bucket //test-401493019403-2
